@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Salqin · Admin panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <!-- LOGIN -->
+  <div id="loginScreen" class="login-screen">
+    <form id="loginForm" class="login-card">
+      <div class="login-logo"><span>❄</span> Salqin Admin</div>
+      <h2>Panelga kirish</h2>
+      <p class="muted">Login: <code>admin</code> · Parol: <code>admin123</code></p>
+      <label>Login<input name="login" required autocomplete="username" /></label>
+      <label>Parol<input name="password" type="password" required autocomplete="current-password" /></label>
+      <button class="btn btn-primary btn-block" type="submit">Kirish</button>
+      <a href="index.html" class="back-link">← Do'kon sahifasiga qaytish</a>
+    </form>
+  </div>
+
+  <!-- APP -->
+  <div id="app" class="app hidden">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">❄</span>
+        <div><div class="brand-name">Salqin</div><div class="brand-sub">Admin panel</div></div>
+      </div>
+      <nav class="menu">
+        <a class="menu-item active" data-page="dashboard"><span class="i">▦</span> Dashboard</a>
+        <a class="menu-item" data-page="products"><span class="i">▤</span> Mahsulotlar</a>
+        <a class="menu-item" data-page="orders"><span class="i">▣</span> Buyurtmalar <span id="newOrdersBadge" class="m-badge hidden">0</span></a>
+        <a class="menu-item" data-page="users"><span class="i">◉</span> Foydalanuvchilar</a>
+        <a class="menu-item" data-page="finance"><span class="i">$</span> Moliya</a>
+      </nav>
+      <div class="sidebar-foot">
+        <a href="index.html" class="menu-item">← Do'konga</a>
+        <a id="logoutBtn" class="menu-item">⏻ Chiqish</a>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSub" class="muted">Umumiy ko'rsatkichlar va statistika</p>
+        </div>
+        <div class="topbar-right">
+          <span class="dot-status"></span>
+          <span class="muted">Online</span>
+          <span class="sep"></span>
+          <span class="admin-chip">A</span>
+        </div>
+      </header>
+
+      <!-- PAGES -->
+      <section id="page-dashboard" class="page">
+        <div class="stat-grid">
+          <div class="stat-card grad-1">
+            <div class="stat-label">Bugungi tushum</div>
+            <div id="statToday" class="stat-value">0</div>
+            <div class="stat-sub">+<span id="statTodayCount">0</span> buyurtma</div>
+          </div>
+          <div class="stat-card grad-2">
+            <div class="stat-label">Haftalik</div>
+            <div id="statWeek" class="stat-value">0</div>
+            <div class="stat-sub">so'nggi 7 kun</div>
+          </div>
+          <div class="stat-card grad-3">
+            <div class="stat-label">Oylik</div>
+            <div id="statMonth" class="stat-value">0</div>
+            <div class="stat-sub">joriy oy</div>
+          </div>
+          <div class="stat-card grad-4">
+            <div class="stat-label">Mahsulot · Mijoz</div>
+            <div id="statProducts" class="stat-value">0</div>
+            <div class="stat-sub"><span id="statUsers">0</span> ro'yxatdan o'tgan</div>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Tushum dinamikasi (7 kun)</h3>
+              <span class="muted">so'm</span>
+            </div>
+            <div class="chart"><canvas id="chartRevenue" height="220"></canvas></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Eng ko'p sotilgan</h3></div>
+            <div id="topProducts" class="top-list"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>So'nggi buyurtmalar</h3>
+            <a data-page="orders" class="link">Barchasini ko'rish →</a>
+          </div>
+          <div id="recentOrders"></div>
+        </div>
+      </section>
+
+      <section id="page-products" class="page hidden">
+        <div class="panel-head row">
+          <div class="search">
+            <input id="productSearch" type="search" placeholder="Mahsulot qidirish..." />
+          </div>
+          <button id="addProductBtn" class="btn btn-primary">+ Yangi mahsulot</button>
+        </div>
+        <div class="panel">
+          <table class="table">
+            <thead>
+              <tr><th>Rasm</th><th>Nomi</th><th>Kategoriya</th><th>Narx</th><th>Chegirma</th><th>Yakuniy</th><th>Stock</th><th></th></tr>
+            </thead>
+            <tbody id="productsTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="page-orders" class="page hidden">
+        <div class="panel-head row">
+          <div class="filter-chips" id="orderFilters">
+            <button class="chip active" data-status="all">Barchasi</button>
+            <button class="chip" data-status="yangi">Yangi</button>
+            <button class="chip" data-status="tayyorlanmoqda">Tayyorlanmoqda</button>
+            <button class="chip" data-status="yetkazilmoqda">Yetkazilmoqda</button>
+            <button class="chip" data-status="bajarildi">Bajarildi</button>
+            <button class="chip" data-status="bekor">Bekor qilingan</button>
+          </div>
+        </div>
+        <div class="panel">
+          <table class="table">
+            <thead>
+              <tr><th>#</th><th>Mijoz</th><th>Telefon</th><th>Mahsulot</th><th>Summa</th><th>Sana</th><th>Holat</th><th></th></tr>
+            </thead>
+            <tbody id="ordersTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="page-users" class="page hidden">
+        <div class="panel">
+          <table class="table">
+            <thead>
+              <tr><th>Ism</th><th>Telefon</th><th>Manzil</th><th>Buyurtmalar</th><th>Umumiy sarflagan</th><th>Ro'yxatdan o'tgan</th><th></th></tr>
+            </thead>
+            <tbody id="usersTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="page-finance" class="page hidden">
+        <div class="stat-grid">
+          <div class="stat-card grad-1">
+            <div class="stat-label">Bugungi</div>
+            <div id="fToday" class="stat-value">0</div>
+          </div>
+          <div class="stat-card grad-2">
+            <div class="stat-label">Haftalik</div>
+            <div id="fWeek" class="stat-value">0</div>
+          </div>
+          <div class="stat-card grad-3">
+            <div class="stat-label">Oylik</div>
+            <div id="fMonth" class="stat-value">0</div>
+          </div>
+          <div class="stat-card grad-4">
+            <div class="stat-label">Umumiy</div>
+            <div id="fTotal" class="stat-value">0</div>
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="panel">
+            <div class="panel-head"><h3>Tushum (7 kun)</h3></div>
+            <div class="chart"><canvas id="fChartRevenue" height="240"></canvas></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>Buyurtmalar soni (7 kun)</h3></div>
+            <div class="chart"><canvas id="fChartCount" height="240"></canvas></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- PRODUCT MODAL -->
+  <div id="productModal" class="modal">
+    <div class="modal-card">
+      <button class="icon-btn modal-close" data-close="product">✕</button>
+      <h3 id="productModalTitle">Yangi mahsulot</h3>
+      <form id="productForm" class="form">
+        <input type="hidden" name="id" />
+        <div class="grid-2">
+          <label>Nomi<input name="name" required /></label>
+          <label>Kategoriya<input name="category" required placeholder="Gazli, Sharbat, Suv..." /></label>
+        </div>
+        <div class="grid-3">
+          <label>Narxi (so'm)<input name="price" type="number" min="0" required /></label>
+          <label>Chegirma (%)<input name="discount" type="number" min="0" max="100" value="0" /></label>
+          <label>Stock<input name="stock" type="number" min="0" required value="0" /></label>
+        </div>
+        <label>Rasm yuklash
+          <input id="productImage" type="file" accept="image/*" />
+        </label>
+        <div class="preview"><img id="productImgPreview" alt="" /></div>
+        <button class="btn btn-primary btn-block" type="submit">Saqlash</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ORDER MODAL -->
+  <div id="orderModal" class="modal">
+    <div class="modal-card">
+      <button class="icon-btn modal-close" data-close="order">✕</button>
+      <h3>Buyurtma tafsiloti</h3>
+      <div id="orderDetails"></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
+
+  <script src="db.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
